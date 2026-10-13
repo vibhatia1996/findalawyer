@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FCT — Find a lawyer</title>
+  <style>
+    :root {
+      --navy: #013a6f;
+      --navy-dark: #141d3a;
+      --blue: #0075c3;
+      --blue-soft: #eaf6fc;
+      --ink: #1a2936;
+      --label: #304a65;
+      --muted: #66788a;
+      --line: #c7ced8;
+      --line-soft: #e5eaf0;
+      --page: #f7f9fb;
+      --surface: #ffffff;
+      --danger: #ac0d1f;
+      --success: #2a7d21;
+      --shadow: 0 10px 28px rgba(20, 29, 58, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--page); }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: var(--page);
+      font-family: "Barlow", sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    button, input { font: inherit; }
+
+    .site-header {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      background: var(--navy);
+      border-bottom: 3px solid #d9d9d9;
+      box-shadow: 0 2px 8px rgba(20, 29, 58, 0.12);
+    }
+
+    .header-inner {
+      width: min(100% - 40px, 1160px);
+      margin: 0 auto;
+    }
+
+    .wordmark {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #fff;
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-style: italic;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .wordmark-mark {
+      width: 14px;
+      height: 19px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .wordmark-mark::before,
+    .wordmark-mark::after {
+      content: "";
+      position: absolute;
+      background: #fff;
+      border-radius: 10px 1px 10px 1px;
+      transform-origin: bottom center;
+    }
+
+    .wordmark-mark::before {
+      width: 7px;
+      height: 15px;
+      left: 1px;
+      top: 1px;
+      transform: rotate(-27deg);
+    }
+
+    .wordmark-mark::after {
+      width: 7px;
+      height: 12px;
+      right: 0;
+      top: 5px;
+      transform: rotate(28deg);
+    }
+
+    main {
+      width: min(100% - 40px, 980px);
+      margin: 38px auto 72px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.2;
+      font-weight: 650;
+    }
+
+    .intro {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .step-count {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .progress-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      margin: 14px 0 30px;
+    }
+
+    .progress-track {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e5e9ee;
+    }
+
+    .progress-bar {
+      width: 33%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--navy);
+      transition: width 300ms ease;
+    }
+
+    .progress-label {
+      min-width: 38px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .step { display: none; animation: enter 220ms ease-out; }
+    .step.active { display: block; }
+
+    @keyframes enter {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .panel {
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-heading {
+      margin: 0 0 4px;
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .panel-copy {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 760px;
+    }
+
+    .span-2 { grid-column: 1 / -1; }
+
+    .field label,
+    .field-label {
+      display: block;
+      margin: 0 0 7px;
+      color: var(--label);
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    .required::after {
+      content: " *";
+      color: var(--danger);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="search"] {
+      width: 100%;
+      min-height: 44px;
+      padding: 9px 12px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #aeb9c5;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0, 117, 195, 0.18);
+    }
+
+    .field-hint {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .error-message {
+      display: none;
+      margin: 6px 0 0;
+      color: var(--danger);
+      font-size: 13px;
+    }
+
+    .invalid input { border-color: var(--danger); }
+    .invalid .error-message { display: block; }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      min-height: 42px;
+      padding: 9px 18px;
+      border: 1px solid var(--navy-dark);
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-primary { color: #fff; background: var(--navy-dark); }
+    .btn-primary:hover:not(:disabled) { background: #243055; }
+    .btn-secondary { color: var(--navy-dark); background: #fff; }
+    .btn-secondary:hover { background: #f2f5f8; }
+    .btn:focus-visible { outline: 3px solid rgba(0, 117, 195, 0.28); outline-offset: 2px; }
+    .btn:disabled { opacity: 0.48; cursor: not-allowed; }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .search-input-wrap { position: relative; }
+    .search-input-wrap svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      color: #607489;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .search-input-wrap input { padding-left: 42px; }
+
+    .search-error {
+      display: none;
+      margin: -10px 0 16px;
+      color: var(--danger);
+      font-size: 13px;
+    }
+
+    .lawyer-explorer {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      min-height: 390px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #f4f6f8;
+    }
+
+    .results-pane {
+      padding: 12px;
+      overflow-y: auto;
+      background: #f8fafb;
+      border-right: 1px solid var(--line);
+    }
+
+    .results-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .lawyer-card {
+      width: 100%;
+      margin: 0 0 9px;
+      padding: 14px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .lawyer-card:hover { border-color: #7e9bb4; }
+    .lawyer-card.selected {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      box-shadow: inset 3px 0 0 var(--blue);
+    }
+
+    .lawyer-name { display: block; font-size: 14px; font-weight: 700; }
+    .lawyer-firm { display: block; margin-top: 2px; color: #445b70; font-size: 13px; }
+    .lawyer-address { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .lawyer-distance { display: block; margin-top: 8px; color: var(--navy); font-size: 12px; font-weight: 600; }
+
+    .map {
+      position: relative;
+      min-height: 390px;
+      overflow: hidden;
+      background:
+        linear-gradient(25deg, transparent 47%, rgba(255,255,255,.95) 48%, rgba(255,255,255,.95) 51%, transparent 52%) 0 0 / 150px 115px,
+        linear-gradient(115deg, transparent 46%, rgba(255,255,255,.9) 47%, rgba(255,255,255,.9) 50%, transparent 51%) 0 0 / 190px 150px,
+        linear-gradient(0deg, rgba(197,215,187,.65), rgba(197,215,187,.65)) 68% 7% / 22% 20% no-repeat,
+        #dde4df;
+    }
+
+    .map::before {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background:
+        linear-gradient(65deg, transparent 48%, #f5c24b 49%, #f5c24b 51%, transparent 52%),
+        linear-gradient(165deg, transparent 49%, #c5cbd1 50%, #c5cbd1 51%, transparent 52%);
+      opacity: .8;
+    }
+
+    .map-label {
+      position: absolute;
+      z-index: 1;
+      color: #6d7d8b;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+    }
+
+    .map-label.city { left: 44%; top: 55%; color: #475867; font-size: 14px; letter-spacing: 1px; }
+
+    .pin {
+      position: absolute;
+      z-index: 2;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: #101820;
+      border: 3px solid #fff;
+      border-radius: 50% 50% 50% 0;
+      box-shadow: 0 2px 6px rgba(20,29,58,.28);
+      cursor: pointer;
+      transform: rotate(-45deg);
+      transition: transform 150ms ease, background 150ms ease;
+    }
+
+    .pin span { font-size: 11px; font-weight: 700; transform: rotate(45deg); }
+    .pin:hover, .pin.selected { background: var(--blue); transform: rotate(-45deg) scale(1.14); }
+    .pin-1 { left: 54%; top: 26%; }
+    .pin-2 { left: 43%; top: 49%; }
+    .pin-3 { left: 62%; top: 67%; }
+
+    .map-legend {
+      position: absolute;
+      z-index: 3;
+      right: 10px;
+      bottom: 10px;
+      padding: 6px 9px;
+      color: var(--muted);
+      background: rgba(255,255,255,.9);
+      border: 1px solid var(--line);
+      font-size: 10px;
+    }
+
+    .selection-summary {
+      display: none;
+      margin-top: 16px;
+      padding: 13px 15px;
+      color: #254560;
+      background: #edf7fc;
+      border-left: 3px solid var(--blue);
+      font-size: 13px;
+    }
+    .selection-summary.visible { display: block; }
+
+    .success-panel { padding: 52px 28px; text-align: center; }
+    .success-icon {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      margin: 0 auto 18px;
+      place-items: center;
+      color: #fff;
+      background: var(--success);
+      border-radius: 50%;
+      font-size: 30px;
+    }
+    .success-panel h2 { margin: 0 0 8px; font-size: 23px; }
+    .success-panel p { max-width: 530px; margin: 0 auto; color: var(--muted); }
+    .success-lawyer {
+      max-width: 470px;
+      margin: 24px auto 0;
+      padding: 16px;
+      background: #f7f9fb;
+      border: 1px solid var(--line-soft);
+      font-size: 14px;
+    }
+    .success-lawyer strong { display: block; margin-bottom: 3px; }
+
+    .dialog-backdrop {
+      position: fixed;
+      z-index: 50;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(20, 29, 58, 0.46);
+    }
+    .dialog-backdrop.open { display: flex; }
+    .dialog {
+      width: min(100%, 500px);
+      padding: 25px;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 22px 60px rgba(20,29,58,.28);
+    }
+    .warning-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      margin-bottom: 15px;
+      place-items: center;
+      color: #6a4a00;
+      background: #fff3c4;
+      border-radius: 50%;
+      font-size: 23px;
+      font-weight: 700;
+    }
+    .dialog h2 { margin: 0 0 8px; font-size: 20px; }
+    .dialog p { margin: 0; color: var(--muted); font-size: 14px; }
+    .dialog-lawyer {
+      margin: 18px 0 0;
+      padding: 13px 14px;
+      color: var(--ink);
+      background: #f7f9fb;
+      border: 1px solid var(--line-soft);
+      font-size: 14px;
+    }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+
+    @media (max-width: 760px) {
+      main { width: min(100% - 28px, 980px); margin-top: 26px; }
+      .site-header { height: 56px; }
+      .panel { padding: 18px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .span-2 { grid-column: auto; }
+      .lawyer-explorer { grid-template-columns: 1fr; }
+      .results-pane { max-height: 300px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .map { min-height: 310px; }
+    }
+
+    @media (max-width: 500px) {
+      .title-row { display: block; }
+      .step-count { display: block; margin-top: 10px; }
+      .search-row { grid-template-columns: 1fr; }
+      .search-row .btn { width: 100%; }
+      .dialog-actions { flex-direction: column-reverse; }
+      .dialog-actions .btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .step { animation: none; }
+      .progress-bar, .pin { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="wordmark" aria-label="FCT"><span class="wordmark-mark" aria-hidden="true"></span>FCT</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="title-row">
+      <div>
+        <h1>Find a lawyer</h1>
+        <p class="intro">Tell us a little about yourself, then choose a lawyer near you.</p>
+      </div>
+      <span class="step-count" id="step-count">Step 1 of 3</span>
+    </div>
+
+    <div class="progress-wrap" aria-label="Find a lawyer progress">
+      <div class="progress-track" id="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="33" aria-labelledby="progress-value">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <span class="progress-label" id="progress-value">33%</span>
+    </div>
+
+    <form id="lawyer-form" novalidate>
+      <section class="step active" data-step="1" aria-labelledby="basic-info-heading">
+        <div class="panel">
+          <h2 class="panel-heading" id="basic-info-heading">Your information</h2>
+          <p class="panel-copy">Enter your contact information so the selected lawyer can follow up with you.</p>
+
+          <div class="form-grid">
+            <div class="field" id="first-name-field">
+              <label class="required" for="first-name">First name</label>
+              <input id="first-name" name="firstName" type="text" autocomplete="given-name" />
+              <p class="error-message" role="alert">Enter your first name.</p>
+            </div>
+
+            <div class="field" id="last-name-field">
+              <label class="required" for="last-name">Last name</label>
+              <input id="last-name" name="lastName" type="text" autocomplete="family-name" />
+              <p class="error-message" role="alert">Enter your last name.</p>
+            </div>
+
+            <div class="field" id="email-field">
+              <label class="required" for="email">Email address</label>
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="Enter email address" />
+              <p class="error-message" role="alert">Enter a valid email address.</p>
+            </div>
+
+            <div class="field" id="phone-field">
+              <label for="phone">Phone number <span aria-hidden="true">(optional)</span></label>
+              <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="XXX-XXX-XXXX" />
+              <p class="field-hint">Canadian phone number format: XXX-XXX-XXXX</p>
+              <p class="error-message" role="alert">Use the format XXX-XXX-XXXX.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <span aria-hidden="true"></span>
+          <button class="btn btn-primary" type="button" id="continue-to-search">Continue</button>
+        </div>
+      </section>
+
+      <section class="step" data-step="2" aria-labelledby="lawyer-search-heading">
+        <div class="panel">
+          <h2 class="panel-heading" id="lawyer-search-heading">Find a lawyer near you</h2>
+          <p class="panel-copy">Search by postal code, city or address, then select the lawyer you would like to contact.</p>
+
+          <div class="search-row">
+            <div class="search-input-wrap">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m20.7 19.3-4.1-4.1a7.5 7.5 0 1 0-1.4 1.4l4.1 4.1a1 1 0 0 0 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg>
+              <label class="field-label" for="location" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Location</label>
+              <input id="location" type="search" placeholder="Enter a postal code, city or address" autocomplete="postal-code" />
+            </div>
+            <button class="btn btn-primary" id="search-button" type="button">Search</button>
+          </div>
+          <p class="search-error" id="search-error" role="alert">Enter a location to search for lawyers.</p>
+
+          <div class="lawyer-explorer" aria-label="Nearby lawyer search results">
+            <div class="results-pane">
+              <p class="results-heading"><span id="results-label">Nearby lawyers</span><span>3 results</span></p>
+
+              <button class="lawyer-card" type="button" data-lawyer="0" aria-pressed="false">
+                <span class="lawyer-name">Sarah Chen</span>
+                <span class="lawyer-firm">Chen Real Estate Law</span>
+                <span class="lawyer-address">1200 Bay Street, Suite 800<br />Toronto, ON M5R 2A5</span>
+                <span class="lawyer-distance">1.2 km away</span>
+              </button>
+
+              <button class="lawyer-card" type="button" data-lawyer="1" aria-pressed="false">
+                <span class="lawyer-name">Daniel Morrison</span>
+                <span class="lawyer-firm">Morrison &amp; Patel LLP</span>
+                <span class="lawyer-address">77 Bloor Street West, Suite 1600<br />Toronto, ON M5S 1M2</span>
+                <span class="lawyer-distance">2.4 km away</span>
+              </button>
+
+              <button class="lawyer-card" type="button" data-lawyer="2" aria-pressed="false">
+                <span class="lawyer-name">Priya Nair</span>
+                <span class="lawyer-firm">Nair Property Law</span>
+                <span class="lawyer-address">250 University Avenue, Suite 400<br />Toronto, ON M5H 3E5</span>
+                <span class="lawyer-distance">3.1 km away</span>
+              </button>
+            </div>
+
+            <div class="map" aria-label="Map showing three nearby lawyers">
+              <span class="map-label" style="left:10%;top:18%">Yorkville</span>
+              <span class="map-label" style="left:70%;top:14%">Rosedale</span>
+              <span class="map-label city">Toronto</span>
+              <button class="pin pin-1" type="button" data-lawyer="0" aria-label="Select Sarah Chen"><span>1</span></button>
+              <button class="pin pin-2" type="button" data-lawyer="1" aria-label="Select Daniel Morrison"><span>2</span></button>
+              <button class="pin pin-3" type="button" data-lawyer="2" aria-label="Select Priya Nair"><span>3</span></button>
+              <span class="map-legend">Illustrative map</span>
+            </div>
+          </div>
+
+          <div class="selection-summary" id="selection-summary" aria-live="polite"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-secondary" type="button" id="back-to-info">Back</button>
+          <button class="btn btn-primary" type="button" id="submit-selection" disabled>Submit</button>
+        </div>
+      </section>
+
+      <section class="step" data-step="3" aria-labelledby="success-heading">
+        <div class="panel success-panel">
+          <div class="success-icon" aria-hidden="true">✓</div>
+          <h2 id="success-heading">Your lawyer selection has been submitted</h2>
+          <p>We’ve sent your contact information and selection. The lawyer’s office will contact you about next steps.</p>
+          <div class="success-lawyer" id="success-lawyer"></div>
+        </div>
+      </section>
+    </form>
+  </main>
+
+  <div class="dialog-backdrop" id="confirmation-backdrop" aria-hidden="true">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+      <div class="warning-icon" aria-hidden="true">!</div>
+      <h2 id="dialog-title">Submit your lawyer selection?</h2>
+      <p id="dialog-description">You’re about to submit this lawyer selection. Please confirm that the information is correct before continuing.</p>
+      <div class="dialog-lawyer" id="dialog-lawyer"></div>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" type="button" id="cancel-submit">Go back</button>
+        <button class="btn btn-primary" type="button" id="confirm-submit">Submit selection</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const lawyers = [
+      { name: "Sarah Chen", firm: "Chen Real Estate Law", address: "1200 Bay Street, Suite 800, Toronto, ON M5R 2A5" },
+      { name: "Daniel Morrison", firm: "Morrison & Patel LLP", address: "77 Bloor Street West, Suite 1600, Toronto, ON M5S 1M2" },
+      { name: "Priya Nair", firm: "Nair Property Law", address: "250 University Avenue, Suite 400, Toronto, ON M5H 3E5" }
+    ];
+
+    const steps = [...document.querySelectorAll(".step")];
+    const progressBar = document.getElementById("progress-bar");
+    const progressTrack = document.getElementById("progress-track");
+    const progressValue = document.getElementById("progress-value");
+    const stepCount = document.getElementById("step-count");
+    const submitButton = document.getElementById("submit-selection");
+    const selectionSummary = document.getElementById("selection-summary");
+    const backdrop = document.getElementById("confirmation-backdrop");
+    let selectedLawyer = null;
+    let lastFocusedElement = null;
+
+    function showStep(stepNumber) {
+      steps.forEach((step) => step.classList.toggle("active", Number(step.dataset.step) === stepNumber));
+      const percentage = stepNumber === 1 ? 33 : stepNumber === 2 ? 67 : 100;
+      progressBar.style.width = percentage + "%";
+      progressTrack.setAttribute("aria-valuenow", String(percentage));
+      progressValue.textContent = percentage + "%";
+      stepCount.textContent = `Step ${stepNumber} of 3`;
+      document.querySelector(`.step[data-step="${stepNumber}"]`).focus?.();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function setInvalid(fieldId, invalid) {
+      document.getElementById(fieldId).classList.toggle("invalid", invalid);
+    }
+
+    function validateBasicInfo() {
+      const firstName = document.getElementById("first-name");
+      const lastName = document.getElementById("last-name");
+      const email = document.getElementById("email");
+      const phone = document.getElementById("phone");
+      const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+      const phoneValid = !phone.value.trim() || /^\d{3}-\d{3}-\d{4}$/.test(phone.value.trim());
+
+      setInvalid("first-name-field", !firstName.value.trim());
+      setInvalid("last-name-field", !lastName.value.trim());
+      setInvalid("email-field", !emailValid);
+      setInvalid("phone-field", !phoneValid);
+
+      const firstInvalid = document.querySelector(".step[data-step='1'] .invalid input");
+      if (firstInvalid) firstInvalid.focus();
+      return !firstInvalid;
+    }
+
+    document.getElementById("phone").addEventListener("input", (event) => {
+      const digits = event.target.value.replace(/\D/g, "").slice(0, 10);
+      const groups = [];
+      if (digits.length) groups.push(digits.slice(0, 3));
+      if (digits.length > 3) groups.push(digits.slice(3, 6));
+      if (digits.length > 6) groups.push(digits.slice(6, 10));
+      event.target.value = groups.join("-");
+    });
+
+    document.getElementById("continue-to-search").addEventListener("click", () => {
+      if (validateBasicInfo()) showStep(2);
+    });
+
+    document.getElementById("back-to-info").addEventListener("click", () => showStep(1));
+
+    document.getElementById("search-button").addEventListener("click", () => {
+      const location = document.getElementById("location");
+      const error = document.getElementById("search-error");
+      if (!location.value.trim()) {
+        error.style.display = "block";
+        location.focus();
+        return;
+      }
+      error.style.display = "none";
+      document.getElementById("results-label").textContent = `Lawyers near ${location.value.trim()}`;
+    });
+
+    document.getElementById("location").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("search-button").click();
+      }
+    });
+
+    function selectLawyer(index) {
+      selectedLawyer = lawyers[index];
+      document.querySelectorAll("[data-lawyer]").forEach((control) => {
+        const selected = Number(control.dataset.lawyer) === index;
+        control.classList.toggle("selected", selected);
+        if (control.classList.contains("lawyer-card")) control.setAttribute("aria-pressed", String(selected));
+      });
+      selectionSummary.innerHTML = `<strong>Selected:</strong> ${selectedLawyer.name}, ${selectedLawyer.firm}`;
+      selectionSummary.classList.add("visible");
+      submitButton.disabled = false;
+    }
+
+    document.querySelectorAll("[data-lawyer]").forEach((control) => {
+      control.addEventListener("click", () => selectLawyer(Number(control.dataset.lawyer)));
+    });
+
+    function openDialog() {
+      if (!selectedLawyer) return;
+      lastFocusedElement = document.activeElement;
+      document.getElementById("dialog-lawyer").innerHTML = `<strong>${selectedLawyer.name}</strong><br>${selectedLawyer.firm}<br>${selectedLawyer.address}`;
+      backdrop.classList.add("open");
+      backdrop.setAttribute("aria-hidden", "false");
+      document.getElementById("cancel-submit").focus();
+    }
+
+    function closeDialog() {
+      backdrop.classList.remove("open");
+      backdrop.setAttribute("aria-hidden", "true");
+      lastFocusedElement?.focus();
+    }
+
+    submitButton.addEventListener("click", openDialog);
+    document.getElementById("cancel-submit").addEventListener("click", closeDialog);
+    document.getElementById("confirm-submit").addEventListener("click", () => {
+      backdrop.classList.remove("open");
+      backdrop.setAttribute("aria-hidden", "true");
+      document.getElementById("success-lawyer").innerHTML = `<strong>${selectedLawyer.name}</strong>${selectedLawyer.firm}<br>${selectedLawyer.address}`;
+      showStep(3);
+    });
+
+    backdrop.addEventListener("click", (event) => {
+      if (event.target === backdrop) closeDialog();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && backdrop.classList.contains("open")) closeDialog();
+    });
+  </script>
+</body>
+</html>
